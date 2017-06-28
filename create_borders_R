@@ -1,7 +1,8 @@
 # This is the R code used to generate the dataset of country-neighbors.
 # I use open-source GIS data from Natural Earth; specifically their sovereignty data.
 # The code is written to work with .shp files.
-# The generic .shp file used here can easily be replaced with your .shp file if you are looking at a certain area of the world.
+# The generic .shp file used here can easily be replaced with your .shp file if you are looking at a certain area of the world, states,
+# electoral districts, etc.
 
 # Required Libraries:
 
@@ -16,11 +17,12 @@ library(foreign)
 # Call the GIS data:
 # *** This is where you would replace the data from Natural Earth with your own. 
 
-boundaries <- readShapePoly("C:/Users/MaryClare/Dropbox/BibTeX/EPR stuff/borders_data/ne_10m_admin_0_sovereignty.shp",delete_null_obj=TRUE)
+boundaries <- readShapePoly("C:/***/ne_10m_admin_0_sovereignty.shp",delete_null_obj=TRUE)
 
 
 # Creating data.frame:
-# *** If using your own data, replace "boundareis@data$SOVEREIGNT" with whichever column names your countries
+# *** If using your own data, replace "boundareis@data$SOVEREIGNT" with whichever column names your area
+# *** If using your own data, make sure to include the maximum number of possilbe neighbors in your data.frame 
 
 country <-as.character(unique(boundaries@data$SOVEREIGNT))            # First column names countries
 neighbor1 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))     # Neighbors will remain "NA" until filled
@@ -44,8 +46,9 @@ Neighbors <- data.frame(country,neighbor1,neighbor2,neighbor3,neighbor4,neighbor
 
 
  # Loop to replace NA's with appropriate neighbors:
- # *** If using your own data, replace (1) "boundaries" with the name of your dataset and 
- # *** (2) "boundaries@data$SOVEREIGNT" with the name of the column that names your countries
+ # *** If using your own data, replace:
+ # *** (1) "boundaries" with the name of your dataset and 
+ # *** (2) "boundaries@data$SOVEREIGNT" with the name of the column that names your areas
 
 for(i in 1:length(Neighbors$country)){
   y <-(gTouches(boundaries[boundaries@data$SOVEREIGNT==as.character(boundaries@data$SOVEREIGNT[i]),],boundaries[boundaries@data$SOVEREIGNT,],byid = T))
