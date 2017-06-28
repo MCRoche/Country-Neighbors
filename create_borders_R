@@ -1,0 +1,66 @@
+# This is the R code used to generate the dataset of country-neighbors.
+# I use open-source GIS data from Natural Earth; specifically their sovereignty data.
+# The code is written to work with .shp files.
+# The generic .shp file used here can easily be replaced with your .shp file if you are looking at a certain area of the world.
+
+# Required Libraries:
+
+library(maps)
+library(mapdata)
+library(maptools)
+library(sp)
+library(rgeos)
+library(foreign)
+
+
+# Call the GIS data:
+# *** This is where you would replace the data from Natural Earth with your own. 
+
+boundaries <- readShapePoly("C:/Users/MaryClare/Dropbox/BibTeX/EPR stuff/borders_data/ne_10m_admin_0_sovereignty.shp",delete_null_obj=TRUE)
+
+
+# Creating data.frame:
+# *** If using your own data, replace "boundareis@data$SOVEREIGNT" with whichever column names your countries
+
+country <-as.character(unique(boundaries@data$SOVEREIGNT))            # First column names countries
+neighbor1 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))     # Neighbors will remain "NA" until filled
+neighbor2 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+neighbor3 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+neighbor4 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+neighbor5 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+neighbor6 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+neighbor7 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+neighbor8 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+neighbor9 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+neighbor10 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+neighbor11 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+neighbor12 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+neighbor13 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+neighbor14 <-rep("NA", length(unique(boundaries@data$SOVEREIGNT)))
+
+Neighbors <- data.frame(country,neighbor1,neighbor2,neighbor3,neighbor4,neighbor5,neighbor6,neighbor7,
+                        neighbor8,neighbor9,neighbor10,neighbor11,neighbor12,neighbor13,neighbor14,
+                        stringsAsFactors=FALSE)
+
+
+ # Loop to replace NA's with appropriate neighbors:
+ # *** If using your own data, replace (1) "boundaries" with the name of your dataset and 
+ # *** (2) "boundaries@data$SOVEREIGNT" with the name of the column that names your countries
+
+for(i in 1:length(Neighbors$country)){
+  y <-(gTouches(boundaries[boundaries@data$SOVEREIGNT==as.character(boundaries@data$SOVEREIGNT[i]),],boundaries[boundaries@data$SOVEREIGNT,],byid = T))
+  y <- y[rownames(boundaries@data),,drop=F]
+  ifelse("TRUE" %in% y,
+         Neighbors[i,2:(length(as.character(boundaries@data$SOVEREIGNT[y]))+1)] <-t(as.character(boundaries@data$SOVEREIGNT[y])),
+         next)
+}
+
+
+# Export Neighbors as .dta or .csv (optional)
+# *** Add your own path to where you want the data copied
+
+# Stata file:
+write.dta(Neighbors, "***/Neighors.dta")
+
+# .csv file:
+write.table(Neighbors, "***/Neighors.csv")
